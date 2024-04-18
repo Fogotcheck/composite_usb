@@ -15,14 +15,16 @@ void AppMain(void)
         Error_Handler();
     }
     vTaskStartScheduler();
-#endif
+#else
     MainThread((void *)NULL);
+#endif
 }
 
 void MainThread(__attribute__((unused)) void *arg)
 {
     while (1)
     {
-        /* code */
+        HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+        vTaskDelay(100);
     }
 }
