@@ -1,0 +1,12 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.generator": "Ninja",
+    "cmake.configureArgs": [
+        // "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder_env}/cmake/toolchain/toolchain_arm_cortex_m4.cmake",
+
+        "-DOPENOCD_ENABLE=${OPENOCD_ENABLE}",
+        "-DENVIRONMENT_VSCODE=${ENVIRONMENT_VSCODE}",
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+    ],
+    "cmake.buildArgs": []
+}

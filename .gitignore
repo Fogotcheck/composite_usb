@@ -1,0 +1,5 @@
+build/**
+.vscode/**
+src/.cproject
+src/.mxproject
+src/.project
