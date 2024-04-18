@@ -10,6 +10,7 @@ add_compile_definitions(
     ${MCU_DEVICE}
     "USE_HAL_DRIVER"
     "__NEWLIB__"
+    "USE_RTOS"
 )
 add_link_options(
     "-T${CMAKE_SOURCE_DIR}/src/STM32WB55RGVX_FLASH.ld"
@@ -19,6 +20,7 @@ add_executable(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
 
 add_subdirectory(src)
+add_subdirectory(lib)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bin DESTINATION ${CMAKE_BINARY_DIR}/bin)

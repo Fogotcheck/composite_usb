@@ -12,5 +12,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     "${StCorePath}/Src/stm32wbxx_it.c"
     "${StCorePath}/Src/syscalls.c"
     "${StCorePath}/Src/sysmem.c"
+    "${StCorePath}/Src/stm32wbxx_hal_timebase_tim.c"
     "${StCorePath}/Startup/startup_stm32wb55rgvx.s"
 )
