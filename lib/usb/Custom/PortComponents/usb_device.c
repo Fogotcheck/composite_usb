@@ -51,7 +51,7 @@ uint8_t CDC_EpAdd_Inst1[3] = {CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP};
 
 uint8_t CDC_InstID, HID_InstID = 0;
 extern USBD_DescriptorsTypeDef Composite_Desc;
-extern USBD_DescriptorsTypeDef HID_Desc;
+
 /* USER CODE END 0 */
 
 /*
@@ -89,15 +89,15 @@ void MX_USB_Device_Init(void)
   //   Error_Handler();
   // }
 
-  if (USBD_Init(&hUsbDeviceFS, &Composite_Desc, DEVICE_FS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  HID_InstID = hUsbDeviceFS.classId;
-  if (USBD_RegisterClassComposite(&hUsbDeviceFS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdress))
-  {
-    Error_Handler();
-  }
+  // if (USBD_Init(&hUsbDeviceFS, &Composite_Desc, DEVICE_FS) != USBD_OK)
+  // {
+  //   Error_Handler();
+  // }
+  // HID_InstID = hUsbDeviceFS.classId;
+  // if (USBD_RegisterClassComposite(&hUsbDeviceFS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdress))
+  // {
+  //   Error_Handler();
+  // }
   // CDC_InstID = hUsbDeviceFS.classId;
   // if (USBD_RegisterClassComposite(&hUsbDeviceFS, USBD_CDC_CLASS, CLASS_TYPE_CDC, CDC_EpAdd_Inst1))
   // {
@@ -107,6 +107,29 @@ void MX_USB_Device_Init(void)
   // {
   //   USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
   // }
+  // if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
+  // {
+  //   Error_Handler();
+  // }
+  if (USBD_Init(&hUsbDeviceFS, &Composite_Desc, DEVICE_FS) != USBD_OK)
+  {
+    Error_Handler();
+  }
+  HID_InstID = hUsbDeviceFS.classId;
+  if (USBD_RegisterClassComposite(&hUsbDeviceFS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdress))
+  {
+    Error_Handler();
+  }
+  CDC_InstID = hUsbDeviceFS.classId;
+  if (USBD_RegisterClassComposite(&hUsbDeviceFS, USBD_CDC_CLASS, CLASS_TYPE_CDC, CDC_EpAdd_Inst1))
+  {
+    Error_Handler();
+  }
+  if (USBD_CMPSIT_SetClassID(&hUsbDeviceFS, CLASS_TYPE_CDC, 0) != 0xFF)
+  {
+    USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
+  }
+
   if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
   {
     Error_Handler();

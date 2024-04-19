@@ -65,10 +65,10 @@
 #define USBD_VID 1155
 #define USBD_LANGID_STRING 1033
 #define USBD_MANUFACTURER_STRING "STMicroelectronics"
-#define USBD_PID 22315
-#define USBD_PRODUCT_STRING "STM32 Human interface"
-#define USBD_CONFIGURATION_STRING "HID Config"
-#define USBD_INTERFACE_STRING "HID Interface"
+#define USBD_PID 22336
+#define USBD_PRODUCT_STRING "STM32 Composite"
+#define USBD_CONFIGURATION_STRING "CDC+HID Config"
+#define USBD_INTERFACE_STRING "CDC+HID Interface"
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
@@ -143,13 +143,13 @@ USBD_DescriptorsTypeDef Composite_Desc =
 #pragma data_alignment = 4
 #endif /* defined ( __ICCARM__ ) */
 /** USB standard device descriptor. */
-__ALIGN_BEGIN uint8_t USBD_HID_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
+__ALIGN_BEGIN uint8_t USBD_Composite_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
     {
         0x12,                 /*bLength */
         USB_DESC_TYPE_DEVICE, /*bDescriptorType*/
         0x00,                 /*bcdUSB */
         0x02,
-        0xef,             /*bDeviceClass*/
+        0xEF,             /*bDeviceClass*/
         0x02,             /*bDeviceSubClass*/
         0x01,             /*bDeviceProtocol*/
         USB_MAX_EP0_SIZE, /*bMaxPacketSize*/
@@ -220,8 +220,8 @@ __ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
 uint8_t *USBD_Composite_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
-  *length = sizeof(USBD_HID_DeviceDesc);
-  return USBD_HID_DeviceDesc;
+  *length = sizeof(USBD_Composite_DeviceDesc);
+  return USBD_Composite_DeviceDesc;
 }
 
 /**
@@ -284,9 +284,9 @@ uint8_t *USBD_Composite_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
    * ID */
   Get_SerialNum();
 
-  /* USER CODE BEGIN USBD_HID_SerialStrDescriptor */
+  /* USER CODE BEGIN USBD_CDC_SerialStrDescriptor */
 
-  /* USER CODE END USBD_HID_SerialStrDescriptor */
+  /* USER CODE END USBD_CDC_SerialStrDescriptor */
 
   return (uint8_t *)USBD_StringSerial;
 }
