@@ -27,6 +27,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc.h"
+#include "usbd_hid.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -17,8 +17,13 @@ target_include_directories(
 
     # Custom
     "${UsbCustPath}/CoreComponents"
-    "${UsbCustPath}/ClassComponents/cdc"
     "${UsbCustPath}/PortComponents"
+
+    # cdc
+    "${UsbCustPath}/ClassComponents/cdc"
+
+    # hid
+    "${UsbCustPath}/ClassComponents/hid"
 )
 add_library(St_UsbCore
     "${StUsbPath}/Core/Src/usbd_core.c"
@@ -31,8 +36,13 @@ add_library(St_UsbCore
 target_link_libraries(St_UsbCore St_Usb)
 
 add_library(_UsbClass
+
+    # cdc
     "${UsbCustPath}/ClassComponents/cdc/usbd_cdc.c"
     "${UsbCustPath}/ClassComponents/cdc/usbd_cdc_if.c"
+
+    # hid
+    "${UsbCustPath}/ClassComponents/hid/usbd_hid.c"
 )
 target_link_libraries(_UsbClass St_Usb)
 
