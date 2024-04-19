@@ -18,7 +18,7 @@ if(CMAKE_SIZE)
     )
 endif()
 
-add_custom_target(install_project
+add_custom_target(InstallProject
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
     COMMENT "Installing ${PROJECT_NAME}"
 )
