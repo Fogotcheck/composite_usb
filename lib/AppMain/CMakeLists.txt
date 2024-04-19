@@ -16,6 +16,7 @@ target_link_libraries(
     AppMain
     St_Interface
     FreeRtos
+    ${PROJECT_NAME}_libs
 )
 
 Add_Components(AppMain AppMainHead)

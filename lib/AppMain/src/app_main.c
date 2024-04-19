@@ -7,6 +7,7 @@ void MainThread(void *arg);
 
 void AppMain(void)
 {
+    DebugPrintSwitch(DEBUG_PRINT_ENABLE);
 #ifdef USE_RTOS
     BaseType_t ret = xTaskCreate(MainThread, "MainTask", 512, NULL,
                                  1, NULL);
@@ -22,6 +23,7 @@ void AppMain(void)
 
 void MainThread(__attribute__((unused)) void *arg)
 {
+    printf("Init:\tOK\r\nThr:\tStart\r\n");
     while (1)
     {
         HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
