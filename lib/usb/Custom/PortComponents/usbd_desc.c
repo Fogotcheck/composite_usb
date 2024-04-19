@@ -62,13 +62,13 @@
  * @{
  */
 
-#define USBD_VID 1155
-#define USBD_LANGID_STRING 1033
-#define USBD_MANUFACTURER_STRING "STMicroelectronics"
-#define USBD_PID 22315
-#define USBD_PRODUCT_STRING "STM32 Human interface"
-#define USBD_CONFIGURATION_STRING "HID Config"
-#define USBD_INTERFACE_STRING "HID Interface"
+#define USBD_VID                        0x0483
+#define USBD_LANGID_STRING              0x409
+#define USBD_MANUFACTURER_STRING        "STMicroelectronics"
+#define USBD_PID                         0x5741//0x5750//0x5741//
+#define USBD_PRODUCT_STRING             "STM32 HID CDC Composite Device"
+#define USBD_CONFIGURATION_STRING       "Composite Config"
+#define USBD_INTERFACE_STRING           "Composite Interface"
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 

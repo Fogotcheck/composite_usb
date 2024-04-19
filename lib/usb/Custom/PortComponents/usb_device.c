@@ -49,7 +49,7 @@ USBD_HandleTypeDef hUsbDeviceFS;
 uint8_t HID_EpAdress = HID_EPIN_ADDR;
 uint8_t CDC_EpAdd_Inst1[3] = {CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP};
 
-uint8_t CDC_InstID, HID_InstID = 0;
+uint8_t CDC_InstID=1, HID_InstID = 0;
 extern USBD_DescriptorsTypeDef Composite_Desc;
 
 /* USER CODE END 0 */
@@ -111,16 +111,18 @@ void MX_USB_Device_Init(void)
   // {
   //   Error_Handler();
   // }
+
+  //https://github.com/sanuch14/STM32_CompositeHID_CDC/blob/master/Middlewares/ST/STM32_USB_Device_Library/Class/Composite_CDC_CHID/Src/usbd_cdc_hid.c
   if (USBD_Init(&hUsbDeviceFS, &Composite_Desc, DEVICE_FS) != USBD_OK)
   {
     Error_Handler();
   }
-  HID_InstID = hUsbDeviceFS.classId;
+
   if (USBD_RegisterClassComposite(&hUsbDeviceFS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdress))
   {
     Error_Handler();
   }
-  CDC_InstID = hUsbDeviceFS.classId;
+
   if (USBD_RegisterClassComposite(&hUsbDeviceFS, USBD_CDC_CLASS, CLASS_TYPE_CDC, CDC_EpAdd_Inst1))
   {
     Error_Handler();

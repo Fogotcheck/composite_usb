@@ -50,8 +50,8 @@ void CompositeThread(__attribute__((unused)) void *arg)
     MX_USB_Device_Init();
     while (1)
     {
-        // CDC_Transmit_FS((unsigned char *)VComPortBufTx, strlen(VComPortBufTx));
-        // vTaskDelay(1000);
+        CDC_Transmit_FS((unsigned char *)VComPortBufTx, strlen(VComPortBufTx));
+        vTaskDelay(1000);
         USBD_HID_SendReport(&hUsbDeviceFS, MouseReport, sizeof(MouseReport), HID_InstID);
         vTaskDelay(1000);
     }
