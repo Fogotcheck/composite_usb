@@ -21,6 +21,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
 
 add_subdirectory(src)
 add_subdirectory(lib)
+add_subdirectory(AppMain)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bin DESTINATION ${CMAKE_BINARY_DIR}/bin)
