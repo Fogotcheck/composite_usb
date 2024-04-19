@@ -24,6 +24,10 @@ void AppMain(void)
 void MainThread(__attribute__((unused)) void *arg)
 {
     printf("Init:\tOK\r\nThr:\tStart\r\n");
+    if (VirtComPortInit())
+    {
+        Error_Handler();
+    }
     while (1)
     {
         HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);

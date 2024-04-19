@@ -3,6 +3,8 @@ include("${CMAKE_SOURCE_DIR}/cmake/interface/Components.cmake")
 
 add_subdirectory(rtos)
 add_subdirectory(Debug)
+add_subdirectory(usb)
+add_subdirectory(VirtComPort)
 
 target_link_libraries(
     ${PROJECT_NAME}
