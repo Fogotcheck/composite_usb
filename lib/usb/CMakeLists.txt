@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.22)
 
 add_library(St_Usb INTERFACE)
-
+target_compile_definitions(
+    St_Usb
+    INTERFACE
+    "USE_USBD_COMPOSITE"
+    "USBD_CMPSIT_ACTIVATE_HID=1"
+    "USBD_CMPSIT_ACTIVATE_CDC=1"
+)
 set(StUsbPath
     "${CMAKE_CURRENT_SOURCE_DIR}/STusb"
 )
@@ -24,6 +30,9 @@ target_include_directories(
 
     # hid
     "${UsbCustPath}/ClassComponents/hid"
+
+    # composite
+    "${StUsbPath}/Class/CompositeBuilder/Inc"
 )
 add_library(St_UsbCore
     "${StUsbPath}/Core/Src/usbd_core.c"
@@ -43,6 +52,9 @@ add_library(_UsbClass
 
     # hid
     "${UsbCustPath}/ClassComponents/hid/usbd_hid.c"
+
+    # composite
+    "${StUsbPath}/Class/CompositeBuilder/Src/usbd_composite_builder.c"
 )
 target_link_libraries(_UsbClass St_Usb)
 
