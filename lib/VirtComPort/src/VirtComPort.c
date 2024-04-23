@@ -14,11 +14,10 @@ int VirtComPortInit(void)
 
 void VirtComPortThread(__attribute__((unused)) void *arg)
 {
-    static char VComPortBufTx[] = "Hello cdc\r\n";
-    MX_USB_Device_Init();
+    // static char VComPortBufTx[] = "Hello cdc\r\n";
+   
     while (1)
     {
-        CDC_Transmit_FS((unsigned char *)VComPortBufTx, strlen(VComPortBufTx));
-        vTaskDelay(1000);
+       
     }
 }
