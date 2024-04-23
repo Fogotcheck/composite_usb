@@ -1,5 +1,5 @@
 #include "VirtComPort.h"
-
+#include "tusb.h"
 TaskHandle_t VComPortHandle = NULL;
 
 void VirtComPortThread(void *arg);
@@ -15,9 +15,9 @@ int VirtComPortInit(void)
 void VirtComPortThread(__attribute__((unused)) void *arg)
 {
     // static char VComPortBufTx[] = "Hello cdc\r\n";
-   
+    tud_init(BOARD_TUD_RHPORT);
     while (1)
     {
-       
+
     }
 }

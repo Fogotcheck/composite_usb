@@ -9,6 +9,7 @@ add_library(VComPort ${VComPortSrc})
 target_link_libraries(VComPort
     St_Interface
     # St_Usb don't work
+    tinyusb
     FreeRtos
 )
 
