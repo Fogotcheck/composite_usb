@@ -4,3 +4,6 @@
 [submodule "lib/usb/STusb"]
 	path = lib/usb/STusb
 	url = https://github.com/STMicroelectronics/stm32_mw_usb_device.git
+[submodule "lib/usb/TinyUsb"]
+	path = lib/usb/TinyUsb
+	url = git@github.com:hathach/tinyusb.git
