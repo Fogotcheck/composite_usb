@@ -10,30 +10,30 @@ void USB_LP_IRQHandler(void);
 
 int VirtComPortInit(void)
 {
-    BaseType_t ret = xTaskCreate(VirtComPortThread, "VComPortTask", 512, NULL,
-                                 2, &VComPortHandle);
+  BaseType_t ret = xTaskCreate(VirtComPortThread, "VComPortTask", 512, NULL,
+                               2, &VComPortHandle);
 
-    return ret == pdPASS ? 0 : -1;
+  return ret == pdPASS ? 0 : -1;
 }
 
 void VirtComPortThread(__attribute__((unused)) void *arg)
 {
-    static char VComPortBufTx[] = "Hello cdc\r\n";
-    HAL_PWREx_EnableVddUSB();
-    __HAL_RCC_USB_CLK_ENABLE();
-    printf("tusb::\t%hhu\r\n", tud_init(BOARD_TUD_RHPORT));
+  static char VComPortBufTx[] = "Hello cdc\r\n";
+  HAL_PWREx_EnableVddUSB();
+  __HAL_RCC_USB_CLK_ENABLE();
+  printf("tusb::\t%hhu\r\n", tud_init(BOARD_TUD_RHPORT));
 
-    while (1)
+  while (1)
+  {
+    tud_task(); // device task
+    for (size_t i = 0; i < sizeof(VComPortBufTx); i++)
     {
-        tud_task(); // device task
-        // for (size_t i = 0; i < sizeof(VComPortBufTx); i++)
-        // {
-        //     tud_cdc_n_write_char(0, VComPortBufTx[i]);
-        // }
-
-        // tud_cdc_n_write_flush(0);
-         vTaskDelay(3);
+      tud_cdc_n_write_char(0, VComPortBufTx[i]);
     }
+
+    tud_cdc_n_write_flush(0);
+    vTaskDelay(3);
+  }
 }
 
 //--------------------------------------------------------------------+
