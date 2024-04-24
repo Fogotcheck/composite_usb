@@ -18,7 +18,7 @@ add_link_options(
 
 add_executable(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
-
+target_link_libraries(${PROJECT_NAME} TinyPort tinyusb_config)
 add_subdirectory(src)
 add_subdirectory(lib)
 add_subdirectory(AppMain)
