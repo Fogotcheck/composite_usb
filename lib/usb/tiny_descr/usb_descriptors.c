@@ -212,7 +212,65 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 uint8_t const desc_hid_report[] =
 {
-  TUD_HID_REPORT_DESC_GAMEPAD ( HID_REPORT_ID(REPORT_ID_GAMEPAD          ))
+    0x05, 0x01, // Usage Page (Generic Desktop)
+		0x09, 0x05, // Usage (Game Pad)
+		0xA1, 0x01, // Collection (Application)
+		0x05, 0x09, //   Usage Page (Button)
+		0x19, 0x01, //   Usage Minimum (Button 1)
+		0x29, 0x12, //   Usage Maximum (Button 18)
+		0x15, 0x00, //   Logical Minimum (0)
+		0x25, 0x01, //   Logical Maximum (1)
+		0x75, 0x01, //   Report Size (1)
+		0x95, 0x20, //   Report Count (32)
+		0x81, 0x02, //   Input (Data, Variable, Absolute)
+
+		0x05, 0x01, //   Usage Page (Generic Desktop)
+		0x09, 0x01, //   Usage (Pointer)
+		0xA1, 0x00, //   Collection (Physical)
+		0x09, 0x30, //     Usage (X)
+		0x09, 0x31, //     Usage (Y)
+		0x09, 0x32, //     Usage (Z)
+		0x09, 0x33, //     Usage (rX)
+		0x09, 0x34, //     Usage (rY)
+		0x09, 0x35, //     Usage (rZ)
+		0x15, 0x00, //     LOGICAL_MINIMUM (0)
+		0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
+		0x75, 0x10, //     Report Size (16)
+		0x95, 0x06, //     Report Count (6)
+		0x81, 0x02, //     Input (Data, Variable, Absolute)
+		0xC0, //   End Collection
+
+		0x05, 0x01, //   Usage Page (Generic Desktop)
+		0x09, 0x01, //   Usage (Pointer)
+		0xA1, 0x00, //   Collection (Physical)
+		0x09, 0x36, //     Usage (Slider)
+		0x09, 0x37, //     Usage (Slider)
+		0x15, 0x00, //     LOGICAL_MINIMUM (0)
+		0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
+		0x75, 0x10, //     Report Size (12)
+		0x95, 0x02, //     Report Count (2)
+		0x81, 0x02, //     Input (Data, Variable, Absolute)
+		0xC0, //   End Collection
+
+		0x05, 0x01, // Usage Page (Generic Desktop)
+		0x09, 0x80, // Usage (System Control)
+		0xA1, 0x01, // Collection (Application)
+		0x19, 0x81, //     Usage Minimum (System Power Down)
+		0x29, 0x83, //     Usage Maximum (System Wake Up)
+		0x09, 0xA8, //     Usage (System Hibernate)
+		0x15, 0x00, //     Logical Minimum (0)
+		0x25, 0x01, //     Logical Maximum (1)
+		0x95, 0x04, //     Report Count (4)
+		0x75, 0x01, //     Report Size (1)
+		0x81, 0x02, //     Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit)
+		0x95, 0x01, //     Report Count (1)
+		0x75, 0x04, //     Report Size (4)
+		0x81, 0x01, //     Input (Cnst,Ary,Abs)
+		0xC0, // End Collection
+
+		0xC0 // End Collection
+  // TUD_HID_REPORT_DESC_GAMEPAD ( HID_REPORT_ID(REPORT_ID_GAMEPAD          ))
+
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR

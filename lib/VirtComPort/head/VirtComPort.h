@@ -5,5 +5,5 @@
 #include "task.h"
 
 
-int VirtComPortInit(void);
+int CompositeUsbInit(void);
 #endif //__VirtComPort_h__

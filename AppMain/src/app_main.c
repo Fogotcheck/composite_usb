@@ -24,7 +24,7 @@ void AppMain(void)
 void MainThread(__attribute__((unused)) void *arg)
 {
     printf("Init:\tOK\r\nThr:\tStart\r\n");
-    if (VirtComPortInit())
+    if (CompositeUsbInit())
     {
         Error_Handler();
     }

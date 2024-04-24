@@ -4,19 +4,19 @@
 #include "stm32wbxx_hal.h"
 TaskHandle_t VComPortHandle = NULL;
 
-void VirtComPortThread(void *arg);
+void UsbMainThread(void *arg);
 void USB_HP_IRQHandler(void);
 void USB_LP_IRQHandler(void);
 
-int VirtComPortInit(void)
+int CompositeUsbInit(void)
 {
-  BaseType_t ret = xTaskCreate(VirtComPortThread, "VComPortTask", 512, NULL,
+  BaseType_t ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
                                2, &VComPortHandle);
 
   return ret == pdPASS ? 0 : -1;
 }
 
-void VirtComPortThread(__attribute__((unused)) void *arg)
+void UsbMainThread(__attribute__((unused)) void *arg)
 {
   static char VComPortBufTx[] = "Hello cdc\r\n";
   HAL_PWREx_EnableVddUSB();
