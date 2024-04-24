@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(VComPortSrc "${CMAKE_CURRENT_SOURCE_DIR}/src/VirtComPort.c")
+set(VComPortSrc "${CMAKE_CURRENT_SOURCE_DIR}/src/CompositeUsb.c")
 set(VComPortHeads
     "${CMAKE_CURRENT_SOURCE_DIR}/head"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ReportTypes"
 )
 
 add_library(VComPort ${VComPortSrc})
