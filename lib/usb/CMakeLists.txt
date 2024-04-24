@@ -9,6 +9,7 @@ target_compile_definitions(
     INTERFACE
     "CFG_TUSB_MCU=OPT_MCU_STM32WB"
     "CFG_TUSB_DEBUG=3"
+    # "CFG_TUSB_OS=OPT_OS_FREERTOS" don't work
 )
 
 target_include_directories(
@@ -23,6 +24,8 @@ target_link_libraries(
     tinyusb_config
     INTERFACE
     St_Interface
+    # FreeRtos 
+
 )
 
 add_subdirectory(

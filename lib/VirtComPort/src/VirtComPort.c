@@ -5,6 +5,8 @@
 TaskHandle_t VComPortHandle = NULL;
 
 void VirtComPortThread(void *arg);
+void USB_HP_IRQHandler(void);
+void USB_LP_IRQHandler(void);
 
 int VirtComPortInit(void)
 {
@@ -24,13 +26,13 @@ void VirtComPortThread(__attribute__((unused)) void *arg)
     while (1)
     {
         tud_task(); // device task
-        for (size_t i = 0; i < sizeof(VComPortBufTx); i++)
-        {
-            tud_cdc_n_write_char(0, VComPortBufTx[i]);
-        }
+        // for (size_t i = 0; i < sizeof(VComPortBufTx); i++)
+        // {
+        //     tud_cdc_n_write_char(0, VComPortBufTx[i]);
+        // }
 
-        tud_cdc_n_write_flush(0);
-        vTaskDelay(1);
+        // tud_cdc_n_write_flush(0);
+         vTaskDelay(3);
     }
 }
 
