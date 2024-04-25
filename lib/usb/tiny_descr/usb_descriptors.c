@@ -25,81 +25,48 @@
 
 #include "bsp/board_api.h"
 #include "tusb.h"
-#include "usb_descriptors.h"
 
-
-// Invoked when sent REPORT successfully to host
-// Application can use this to send the next report
-// Note: For composite reports, report[0] is report ID
-void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint16_t len)
-{
-  (void) instance;
-  (void) len;
-}
-
-// Invoked when received GET_REPORT control request
-// Application must fill buffer report's content and return its length.
-// Return zero will cause the stack to STALL request
-uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen)
-{
-  // TODO not Implemented
-  (void) instance;
-  (void) report_id;
-  (void) report_type;
-  (void) buffer;
-  (void) reqlen;
-
-  return 0;
-}
-
-// Invoked when received SET_REPORT control request or
-// received data on OUT endpoint ( Report ID = 0, Type = 0 )
-void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
-{
-  (void) instance;
-}
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
  * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
  *
  * Auto ProductID layout's Bitmap:
  *   [MSB]         HID | MSC | CDC          [LSB]
  */
-#define _PID_MAP(itf, n)  ( (CFG_TUD_##itf) << (n) )
-#define USB_PID           (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) | \
-                           _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4) )
+#define _PID_MAP(itf, n) ((CFG_TUD_##itf) << (n))
+#define USB_PID (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) | \
+                 _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4))
 
-#define USB_VID   0xCafe
-#define USB_BCD   0x0200
+#define USB_VID 0xCafe
+#define USB_BCD 0x0200
 
 //--------------------------------------------------------------------+
 // Device Descriptors
 //--------------------------------------------------------------------+
 tusb_desc_device_t const desc_device =
-{
-    .bLength            = sizeof(tusb_desc_device_t),
-    .bDescriptorType    = TUSB_DESC_DEVICE,
-    .bcdUSB             = USB_BCD,
-    .bDeviceClass       = 0x00,
-    .bDeviceSubClass    = 0x00,
-    .bDeviceProtocol    = 0x00,
-    .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
+    {
+        .bLength = sizeof(tusb_desc_device_t),
+        .bDescriptorType = TUSB_DESC_DEVICE,
+        .bcdUSB = USB_BCD,
+        .bDeviceClass = 0x00,
+        .bDeviceSubClass = 0x00,
+        .bDeviceProtocol = 0x00,
+        .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor           = USB_VID,
-    .idProduct          = USB_PID,
-    .bcdDevice          = 0x0100,
+        .idVendor = USB_VID,
+        .idProduct = USB_PID,
+        .bcdDevice = 0x0100,
 
-    .iManufacturer      = 0x01,
-    .iProduct           = 0x02,
-    .iSerialNumber      = 0x03,
+        .iManufacturer = 0x01,
+        .iProduct = 0x02,
+        .iSerialNumber = 0x03,
 
-    .bNumConfigurations = 0x01
-};
+        .bNumConfigurations = 0x01};
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
-uint8_t const * tud_descriptor_device_cb(void)
+uint8_t const *tud_descriptor_device_cb(void)
 {
-  return (uint8_t const *) &desc_device;
+  return (uint8_t const *)&desc_device;
 }
 
 //--------------------------------------------------------------------+
@@ -107,73 +74,73 @@ uint8_t const * tud_descriptor_device_cb(void)
 //--------------------------------------------------------------------+
 
 uint8_t const desc_hid_report[] =
-{
-  0x05, 0x01, // Usage Page (Generic Desktop)
-	0x09, 0x05, // Usage (Game Pad)
-	0xA1, 0x01, // Collection (Application)
-	0x05, 0x09, //   Usage Page (Button)
-	0x19, 0x01, //   Usage Minimum (Button 1)
-	0x29, 0x14, //   Usage Maximum (Button 32)
-	0x15, 0x00, //   Logical Minimum (0)
-	0x25, 0x01, //   Logical Maximum (1)
-	0x75, 0x01, //   Report Size (1)
-	0x95, 0x20, //   Report Count (32)
-	0x81, 0x02, //   Input (Data, Variable, Absolute)
+    {
+        0x05, 0x01, // Usage Page (Generic Desktop)
+        0x09, 0x05, // Usage (Game Pad)
+        0xA1, 0x01, // Collection (Application)
+        0x05, 0x09, //   Usage Page (Button)
+        0x19, 0x01, //   Usage Minimum (Button 1)
+        0x29, 0x14, //   Usage Maximum (Button 32)
+        0x15, 0x00, //   Logical Minimum (0)
+        0x25, 0x01, //   Logical Maximum (1)
+        0x75, 0x01, //   Report Size (1)
+        0x95, 0x20, //   Report Count (32)
+        0x81, 0x02, //   Input (Data, Variable, Absolute)
 
-	0x05, 0x01,		  //   Usage Page (Generic Desktop)
-	0x09, 0x01,		  //   Usage (Pointer)
-	0xA1, 0x00,		  //   Collection (Physical)
-	0x09, 0x30,		  //     Usage (X)
-	0x09, 0x31,		  //     Usage (Y)
-	0x09, 0x32,		  //     Usage (Z)
-	0x09, 0x33,		  //     Usage (rX)
-	0x09, 0x34,		  //     Usage (rY)
-	0x09, 0x35,		  //     Usage (rZ)
-	0x15, 0x00,		  //     LOGICAL_MINIMUM (0)
-	0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
-	0x75, 0x10,		  //     Report Size (16)
-	0x95, 0x06,		  //     Report Count (6)
-	0x81, 0x02,		  //     Input (Data, Variable, Absolute)
-	0xC0,			  //   End Collection
+        0x05, 0x01,       //   Usage Page (Generic Desktop)
+        0x09, 0x01,       //   Usage (Pointer)
+        0xA1, 0x00,       //   Collection (Physical)
+        0x09, 0x30,       //     Usage (X)
+        0x09, 0x31,       //     Usage (Y)
+        0x09, 0x32,       //     Usage (Z)
+        0x09, 0x33,       //     Usage (rX)
+        0x09, 0x34,       //     Usage (rY)
+        0x09, 0x35,       //     Usage (rZ)
+        0x15, 0x00,       //     LOGICAL_MINIMUM (0)
+        0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
+        0x75, 0x10,       //     Report Size (16)
+        0x95, 0x06,       //     Report Count (6)
+        0x81, 0x02,       //     Input (Data, Variable, Absolute)
+        0xC0,             //   End Collection
 
-	0x05, 0x01,		  //   Usage Page (Generic Desktop)
-	0x09, 0x01,		  //   Usage (Pointer)
-	0xA1, 0x00,		  //   Collection (Physical)
-	0x09, 0x36,		  //     Usage (Slider)
-	0x09, 0x37,		  //     Usage (Slider)
-	0x15, 0x00,		  //     LOGICAL_MINIMUM (0)
-	0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
-	0x75, 0x10,		  //     Report Size (16)
-	0x95, 0x02,		  //     Report Count (2)
-	0x81, 0x02,		  //     Input (Data, Variable, Absolute)
-	0xC0,			  //   End Collection
+        0x05, 0x01,       //   Usage Page (Generic Desktop)
+        0x09, 0x01,       //   Usage (Pointer)
+        0xA1, 0x00,       //   Collection (Physical)
+        0x09, 0x36,       //     Usage (Slider)
+        0x09, 0x37,       //     Usage (Slider)
+        0x15, 0x00,       //     LOGICAL_MINIMUM (0)
+        0x26, 0x00, 0x10, //     LOGICAL_MAXIMUM (4096)
+        0x75, 0x10,       //     Report Size (16)
+        0x95, 0x02,       //     Report Count (2)
+        0x81, 0x02,       //     Input (Data, Variable, Absolute)
+        0xC0,             //   End Collection
 
-	0x05, 0x01, // Usage Page (Generic Desktop)
-	0x09, 0x80, // Usage (System Control)
-	0xA1, 0x01, // Collection (Application)
-	0x19, 0x81, //     Usage Minimum (System Power Down)
-	0x29, 0x83, //     Usage Maximum (System Wake Up)
-	0x09, 0xA8, //     Usage (System Hibernate)
-	0x15, 0x00, //     Logical Minimum (0)
-	0x25, 0x01, //     Logical Maximum (1)
-	0x95, 0x04, //     Report Count (4)
-	0x75, 0x01, //     Report Size (1)
-	0x81, 0x02, //     Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit)
-	0x95, 0x01, //     Report Count (1)
-	0x75, 0x04, //     Report Size (4)
-	0x81, 0x01, //     Input (Cnst,Ary,Abs)
-	0xC0,		// End Collection
+        0x05, 0x01, // Usage Page (Generic Desktop)
+        0x09, 0x80, // Usage (System Control)
+        0xA1, 0x01, // Collection (Application)
+        0x19, 0x81, //     Usage Minimum (System Power Down)
+        0x29, 0x83, //     Usage Maximum (System Wake Up)
+        0x09, 0xA8, //     Usage (System Hibernate)
+        0x15, 0x00, //     Logical Minimum (0)
+        0x25, 0x01, //     Logical Maximum (1)
+        0x95, 0x04, //     Report Count (4)
+        0x75, 0x01, //     Report Size (1)
+        0x81, 0x02, //     Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit)
+        0x95, 0x01, //     Report Count (1)
+        0x75, 0x04, //     Report Size (4)
+        0x81, 0x01, //     Input (Cnst,Ary,Abs)
+        0xC0,       // End Collection
 
-	0xC0, // End Collection
+        0xC0, // End Collection
 
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
-uint8_t const * tud_hid_descriptor_report_cb(uint8_t instance)
+uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance)
 {
-  (void) instance;
+  (void)instance;
   return desc_hid_report;
 }
 
@@ -189,24 +156,23 @@ enum
   ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + CFG_TUD_CDC * TUD_CDC_DESC_LEN)
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + CFG_TUD_CDC * TUD_CDC_DESC_LEN)
 
-#define EPNUM_HID         0x81
-#define EPNUM_CDC_NOTIF   0x83
-#define EPNUM_CDC_OUT     0x03
-#define EPNUM_CDC_IN      0x84
+#define EPNUM_HID 0x81
+#define EPNUM_CDC_NOTIF 0x83
+#define EPNUM_CDC_OUT 0x03
+#define EPNUM_CDC_IN 0x84
 
 uint8_t const desc_configuration[] =
-{
-  // Config number, interface count, string index, total length, attribute, power in mA
-  TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+    {
+        // Config number, interface count, string index, total length, attribute, power in mA
+        TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
-  // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
-  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 5),
+        // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
+        TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 5),
 
-   // 1st CDC: Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-  TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_0, 4, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64)
-};
+        // 1st CDC: Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+        TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_0, 4, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64)};
 
 #if TUD_OPT_HIGH_SPEED
 // Per USB specs: high speed capable device must report device_qualifier and other_speed_configuration
@@ -216,35 +182,34 @@ uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN];
 
 // device qualifier is mostly similar to device descriptor since we don't change configuration based on speed
 tusb_desc_device_qualifier_t const desc_device_qualifier =
-{
-  .bLength            = sizeof(tusb_desc_device_qualifier_t),
-  .bDescriptorType    = TUSB_DESC_DEVICE_QUALIFIER,
-  .bcdUSB             = USB_BCD,
+    {
+        .bLength = sizeof(tusb_desc_device_qualifier_t),
+        .bDescriptorType = TUSB_DESC_DEVICE_QUALIFIER,
+        .bcdUSB = USB_BCD,
 
-  .bDeviceClass       = 0x00,
-  .bDeviceSubClass    = 0x00,
-  .bDeviceProtocol    = 0x00,
+        .bDeviceClass = 0x00,
+        .bDeviceSubClass = 0x00,
+        .bDeviceProtocol = 0x00,
 
-  .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
-  .bNumConfigurations = 0x01,
-  .bReserved          = 0x00
-};
+        .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+        .bNumConfigurations = 0x01,
+        .bReserved = 0x00};
 
 // Invoked when received GET DEVICE QUALIFIER DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to complete.
 // device_qualifier descriptor describes information about a high-speed capable device that would
 // change if the device were operating at the other speed. If not highspeed capable stall this request.
-uint8_t const* tud_descriptor_device_qualifier_cb(void)
+uint8_t const *tud_descriptor_device_qualifier_cb(void)
 {
-  return (uint8_t const*) &desc_device_qualifier;
+  return (uint8_t const *)&desc_device_qualifier;
 }
 
 // Invoked when received GET OTHER SEED CONFIGURATION DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to complete
 // Configuration descriptor in the other speed e.g if high speed then this is for full speed and vice versa
-uint8_t const* tud_descriptor_other_speed_configuration_cb(uint8_t index)
+uint8_t const *tud_descriptor_other_speed_configuration_cb(uint8_t index)
 {
-  (void) index; // for multiple configurations
+  (void)index; // for multiple configurations
 
   // other speed config is basically configuration with type = OHER_SPEED_CONFIG
   memcpy(desc_other_speed_config, desc_configuration, CONFIG_TOTAL_LEN);
@@ -259,9 +224,9 @@ uint8_t const* tud_descriptor_other_speed_configuration_cb(uint8_t index)
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
-uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
+uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
 {
-  (void) index; // for multiple configurations
+  (void)index; // for multiple configurations
 
   // This example use the same configuration for both high and full speed mode
   return desc_configuration;
@@ -272,7 +237,8 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 //--------------------------------------------------------------------+
 
 // String Descriptor Index
-enum {
+enum
+{
   STRID_LANGID = 0,
   STRID_MANUFACTURER,
   STRID_PRODUCT,
@@ -281,53 +247,58 @@ enum {
 
 // array of pointer to string descriptors
 char const *string_desc_arr[] =
-{
-  (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-  "TinyUSB",                     // 1: Manufacturer
-  "TinyUSB Device",              // 2: Product
-  NULL,                          // 3: Serials will use unique ID if possible
+    {
+        (const char[]){0x09, 0x04}, // 0: is supported language is English (0x0409)
+        "GCD_USB",                  // 1: Manufacturer
+        "GCD Device",               // 2: Product
+        NULL,                       // 3: Serials will use unique ID if possible
 };
 
 static uint16_t _desc_str[32 + 1];
 
 // Invoked when received GET STRING DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to complete
-uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
-  (void) langid;
+uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid)
+{
+  (void)langid;
   size_t chr_count;
 
-  switch ( index ) {
-    case STRID_LANGID:
-      memcpy(&_desc_str[1], string_desc_arr[0], 2);
-      chr_count = 1;
-      break;
+  switch (index)
+  {
+  case STRID_LANGID:
+    memcpy(&_desc_str[1], string_desc_arr[0], 2);
+    chr_count = 1;
+    break;
 
-    case STRID_SERIAL:
-      chr_count = board_usb_get_serial(_desc_str + 1, 32);
-      break;
+  case STRID_SERIAL:
+    chr_count = board_usb_get_serial(_desc_str + 1, 32);
+    break;
 
-    default:
-      // Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
-      // https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
+  default:
+    // Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
+    // https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
 
-      if ( !(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0])) ) return NULL;
+    if (!(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0])))
+      return NULL;
 
-      const char *str = string_desc_arr[index];
+    const char *str = string_desc_arr[index];
 
-      // Cap at max char
-      chr_count = strlen(str);
-      size_t const max_count = sizeof(_desc_str) / sizeof(_desc_str[0]) - 1; // -1 for string type
-      if ( chr_count > max_count ) chr_count = max_count;
+    // Cap at max char
+    chr_count = strlen(str);
+    size_t const max_count = sizeof(_desc_str) / sizeof(_desc_str[0]) - 1; // -1 for string type
+    if (chr_count > max_count)
+      chr_count = max_count;
 
-      // Convert ASCII string into UTF-16
-      for ( size_t i = 0; i < chr_count; i++ ) {
-        _desc_str[1 + i] = str[i];
-      }
-      break;
+    // Convert ASCII string into UTF-16
+    for (size_t i = 0; i < chr_count; i++)
+    {
+      _desc_str[1 + i] = str[i];
+    }
+    break;
   }
 
   // first byte is length (including header), second byte is string type
-  _desc_str[0] = (uint16_t) ((TUSB_DESC_STRING << 8) | (2 * chr_count + 2));
+  _desc_str[0] = (uint16_t)((TUSB_DESC_STRING << 8) | (2 * chr_count + 2));
 
   return _desc_str;
 }

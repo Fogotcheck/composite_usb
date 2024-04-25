@@ -2,6 +2,8 @@
 #include "tusb.h"
 
 TaskHandle_t UsbMainHandle = NULL;
+TimerHandle_t UsbTudTimer = NULL;
+EventGroupHandle_t UsbEvents = NULL;
 TaskHandle_t UsbCdcHandle = NULL;
 TaskHandle_t UsbHidHandle = NULL;
 QueueHandle_t UsbCdcQueue = NULL;
@@ -12,60 +14,96 @@ void UsbCdcThread(void *arg);
 void UsbHidThread(void *arg);
 void USB_HP_IRQHandler(void);
 void USB_LP_IRQHandler(void);
+void UsbTudCallback(TimerHandle_t xTimer);
+void UsbEventsHandler(EventBits_t Events);
 
 void BtnTest(uint32_t *btn);
 
 int CompositeUsbInit(void)
 {
-  BaseType_t ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
-                               2, &UsbMainHandle);
+  BaseType_t ret = 0;
+  HAL_PWREx_EnableVddUSB();
+  __HAL_RCC_USB_CLK_ENABLE();
+  tud_init(BOARD_TUD_RHPORT);
 
-  return ret == pdPASS ? 0 : -1;
+  UsbTudTimer = xTimerCreate("tud_timer", pdMS_TO_TICKS(USB_BINTERVAL_MS), pdTRUE, NULL, UsbTudCallback);
+  if (UsbTudTimer == NULL)
+  {
+    return -1;
+  }
+  do
+  {
+    ret = xTimerStart(UsbTudTimer, 0);
+    if (ret == pdFAIL)
+    {
+      printf("tud timer err,or sheduler don't start\r\n");
+    }
+  } while (ret != pdPASS);
+  ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
+                    USB_THREAD_PRIORITY, &UsbMainHandle);
+  if (ret != pdPASS)
+  {
+    return -1;
+  }
+
+  return 0;
 }
 
 void UsbMainThread(__attribute__((unused)) void *arg)
 {
-  CdcReport_t Buf = {0};
-  Buf.DType = CDC_RX;
   BaseType_t ret = 0;
+  EventBits_t Event = 0;
+  EventBits_t Mask = 1;
 
-  HAL_PWREx_EnableVddUSB();
-  __HAL_RCC_USB_CLK_ENABLE();
-  printf("tusb::\t%hhu\r\n", tud_init(BOARD_TUD_RHPORT));
-
+  UsbEvents = xEventGroupCreate();
+  if (UsbEvents == NULL)
+  {
+    do
+    {
+      printf("UsbEvents err\r\n");
+    } while (1);
+  }
   ret = xTaskCreate(UsbCdcThread, "UsbCdcTask", 512, NULL,
-                    2, &UsbCdcHandle);
+                    (USB_THREAD_PRIORITY + 1), &UsbCdcHandle);
   if (ret != pdPASS)
   {
     printf("Cdc thr err\r\n");
   }
-
+  vTaskSuspend(UsbCdcHandle);
   ret = xTaskCreate(UsbHidThread, "UsbHidTask", 512, NULL,
-                    2, &UsbHidHandle);
+                    (USB_THREAD_PRIORITY + 1), &UsbHidHandle);
   if (ret != pdPASS)
   {
     printf("Hid thr err\r\n");
   }
+  vTaskSuspend(UsbHidHandle);
   printf("Composite usb::\tinit\r\n");
   while (1)
   {
-    tud_task(); // device task
-    if (tud_cdc_n_available(0))
+    Event = xEventGroupWaitBits(UsbEvents, USB_ALL_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
+    for (uint8_t i = 0; i < FREERTOS_MAX_EVENT_SIZE; i++)
     {
-      Buf.Size = tud_cdc_n_read(0, Buf.Data, sizeof(Buf.Data));
-      if (xQueueSend(UsbCdcQueue, &Buf, 5) != pdPASS)
+      if (Mask & Event)
       {
-        printf("Cdc RX err\r\n");
+        UsbEventsHandler(Mask & Event);
       }
-    }
 
-    vTaskDelay(5);
+      Mask <<= 1;
+    }
+    Mask = 1;
   }
 }
 
 void UsbCdcThread(__attribute__((unused)) void *arg)
 {
+
   UsbCdcQueue = xQueueCreate(USB_CDC_QUEUE_LEN, sizeof(CdcReport_t));
+  if (UsbCdcQueue == NULL)
+  {
+    printf("cdc queue err\r\n");
+  }
+
+  EventBits_t Event = 0;
   CdcReport_t Buf = {0};
   while (1)
   {
@@ -75,19 +113,44 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
     case CDC_TX:
       tud_cdc_n_write(0, Buf.Data, Buf.Size);
       tud_cdc_n_write_flush(0);
+      Event = xEventGroupWaitBits(UsbEvents, USB_CDC_EMPTY, pdFALSE, pdTRUE, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS));
+      if ((Event & USB_CDC_EMPTY) == 0)
+      {
+        printf("cdc tx timeout\r\n");
+      }
+      xEventGroupClearBits(UsbEvents, USB_CDC_EMPTY);
       break;
     case CDC_RX:
     {
       char tmp[] = "reciev::\t";
-      tud_cdc_n_write(0, tmp, sizeof(tmp));
-      tud_cdc_n_write(0, Buf.Data, Buf.Size);
-      tud_cdc_n_write_flush(0);
+      if (UsbCdcTransmit((uint8_t *)tmp, sizeof(tmp)))
+      {
+        printf("Transmit err\r\n");
+      }
+      if (UsbCdcTransmit(Buf.Data, Buf.Size))
+      {
+        printf("Transmit err\r\n");
+      }
       break;
     }
     default:
       break;
     }
   }
+}
+
+int UsbCdcTransmit(uint8_t *Data, uint32_t Len)
+{
+  CdcReport_t Buf = {0};
+  BaseType_t ret = 0;
+  if (Len >= (uint32_t)sizeof(Buf.Data))
+  {
+    return -1;
+  }
+  memcpy(Buf.Data, Data, Len);
+  Buf.Size = Len;
+  ret = xQueueSend(UsbCdcQueue, &Buf, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS));
+  return ret == pdTRUE ? 0 : -1;
 }
 
 void UsbHidThread(__attribute__((unused)) void *arg)
@@ -104,6 +167,72 @@ void UsbHidThread(__attribute__((unused)) void *arg)
     BtnTest(&report.Buttons);
     tud_hid_report(0, &report, sizeof(report));
     vTaskDelay(10);
+  }
+}
+
+void UsbTudCallback(TimerHandle_t xTimer)
+{
+  if (xTimer == UsbTudTimer)
+  {
+    tud_task(); // device task
+  }
+}
+
+void UsbEventsHandler(EventBits_t Events)
+{
+  CdcReport_t Buf = {0};
+  Buf.DType = CDC_RX;
+
+  if (Events & USB_ALL_ISR_EVENTS)
+  {
+    xEventGroupClearBits(UsbEvents, Events);
+  }
+
+  switch (Events)
+  {
+  case USB_MOUNT:
+    vTaskResume(UsbCdcHandle);
+    vTaskResume(UsbHidHandle);
+    break;
+  case USB_UMOUNT:
+    vTaskSuspend(UsbCdcHandle);
+    vTaskSuspend(UsbHidHandle);
+    break;
+  case USB_SUSPEND:
+    vTaskSuspend(UsbCdcHandle);
+    vTaskSuspend(UsbHidHandle);
+    break;
+  case USB_RESUME:
+    vTaskResume(UsbCdcHandle);
+    vTaskResume(UsbHidHandle);
+    break;
+  case USB_HID_CPLT_TX:
+    xEventGroupSetBits(UsbEvents, USB_HID_EMPTY);
+    break;
+  case USB_CDC_RX:
+    if (tud_cdc_n_available(0))
+    {
+      Buf.Size = tud_cdc_n_read(0, Buf.Data, sizeof(Buf.Data));
+      if (xQueueSend(UsbCdcQueue, &Buf, 5) != pdPASS)
+      {
+        printf("Cdc RX err\r\n");
+      }
+    }
+    break;
+  case USB_CDC_CPLT_TX:
+    xEventGroupSetBits(UsbEvents, USB_CDC_EMPTY);
+    break;
+  case USB_CDC_BREAK_TX:
+    printf("cdc tx break\r\n");
+    xEventGroupSetBits(UsbEvents, USB_CDC_EMPTY);
+    break;
+  case USB_HID_EMPTY:
+    break;
+  case USB_CDC_EMPTY:
+    break;
+
+  default:
+    break;
   }
 }
 
@@ -137,16 +266,4 @@ void BtnTest(uint32_t *btn)
     state = 0;
     break;
   }
-}
-//--------------------------------------------------------------------+
-// Forward USB interrupt events to TinyUSB IRQ Handler
-//--------------------------------------------------------------------+
-void USB_HP_IRQHandler(void)
-{
-  tud_int_handler(0);
-}
-
-void USB_LP_IRQHandler(void)
-{
-  tud_int_handler(0);
 }

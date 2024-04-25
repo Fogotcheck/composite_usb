@@ -18,14 +18,14 @@ target_include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/tini_conf"
     "${TinyUsbPath}/src/portable/st/stm32_fsdev"
     "${TinyUsbPath}/hw"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tiny_CustISR"
 )
 
 target_link_libraries(
     tinyusb_config
     INTERFACE
     St_Interface
-    # FreeRtos 
-
+    FreeRtos 
 )
 
 add_subdirectory(
@@ -37,6 +37,7 @@ add_library(
     "${TinyUsbPath}/src/portable/st/stm32_fsdev/dcd_stm32_fsdev.c"
     "${TinyUsbPath}/src/portable/st/typec/typec_stm32.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/tiny_descr/usb_descriptors.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tiny_CustISR/usb_ISR.c"
 )
 
 target_link_libraries(
