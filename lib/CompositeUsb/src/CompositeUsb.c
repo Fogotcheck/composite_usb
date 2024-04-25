@@ -64,14 +64,14 @@ void UsbMainThread(__attribute__((unused)) void *arg)
     } while (1);
   }
   ret = xTaskCreate(UsbCdcThread, "UsbCdcTask", 512, NULL,
-                    (USB_THREAD_PRIORITY + 1), &UsbCdcHandle);
+                    (USB_THREAD_PRIORITY), &UsbCdcHandle);
   if (ret != pdPASS)
   {
     printf("Cdc thr err\r\n");
   }
   vTaskSuspend(UsbCdcHandle);
   ret = xTaskCreate(UsbHidThread, "UsbHidTask", 512, NULL,
-                    (USB_THREAD_PRIORITY + 1), &UsbHidHandle);
+                    (USB_THREAD_PRIORITY), &UsbHidHandle);
   if (ret != pdPASS)
   {
     printf("Hid thr err\r\n");
@@ -80,7 +80,7 @@ void UsbMainThread(__attribute__((unused)) void *arg)
   printf("Composite usb::\tinit\r\n");
   while (1)
   {
-    Event = xEventGroupWaitBits(UsbEvents, USB_ALL_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
+    Event = xEventGroupWaitBits(UsbEvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
     for (uint8_t i = 0; i < FREERTOS_MAX_EVENT_SIZE; i++)
     {
       if (Mask & Event)
@@ -162,11 +162,12 @@ void UsbHidThread(__attribute__((unused)) void *arg)
 
     if (!tud_hid_ready())
     {
+
       continue;
     }
     BtnTest(&report.Buttons);
     tud_hid_report(0, &report, sizeof(report));
-    vTaskDelay(10);
+    vTaskDelay(100);
   }
 }
 
@@ -203,8 +204,7 @@ void UsbEventsHandler(EventBits_t Events)
     vTaskSuspend(UsbHidHandle);
     break;
   case USB_RESUME:
-    vTaskResume(UsbCdcHandle);
-    vTaskResume(UsbHidHandle);
+
     break;
   case USB_HID_CPLT_TX:
     xEventGroupSetBits(UsbEvents, USB_HID_EMPTY);
