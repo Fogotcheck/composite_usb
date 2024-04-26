@@ -1,4 +1,4 @@
-# **[Проект CompositeUsb CDC+HID](https://github.com/Fogotcheck/composite_usb.git)**
+# **[Example CompositeUsb CDC+HID tyniusb stm32](https://github.com/Fogotcheck/composite_usb.git)**
 
 ## *Клонирование репозитория*
 
