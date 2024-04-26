@@ -11,9 +11,25 @@ set(Debug_Public_Heads
 add_library(Debug_Print ${Debug_Src})
 target_link_libraries(Debug_Print St_Interface)
 
-target_include_directories(Debug_Print PRIVATE
+target_include_directories(
+    Debug_Print
+    PRIVATE
     "${Debug_Private_Heads}"
     "${Debug_Public_Heads}"
+)
+
+target_include_directories(
+    Debug_Print
+    SYSTEM
+    INTERFACE
+    "${Debug_Public_Heads}"
+)
+
+target_compile_definitions(
+    Debug_Print
+    INTERFACE
+    "DEBUG_INFO"
+    "DEBUG_ERR"
 )
 
 Add_Components(Debug_Print Debug_Public_Heads)

@@ -47,28 +47,28 @@ void UsbMainThread(__attribute__((unused)) void *arg)
   InterfaceEvents = xEventGroupCreate();
   if (InterfaceEvents == NULL)
   {
-    printf("Usb ISR events::err\r\n");
+    D_ERR_MSG_L1;
   }
 
   if (UsbISREvents == NULL)
   {
     do
     {
-      printf("UsbEvents err\r\n");
+      D_ERR_MSG_L0;
     } while (1);
   }
   ret = xTaskCreate(UsbCdcThread, "UsbCdcTask", 512, NULL,
                     (USB_THREAD_PRIORITY), &UsbCdcHandle);
   if (ret != pdPASS)
   {
-    printf("Cdc thr err\r\n");
+    D_ERR_MSG_L1;
   }
   vTaskSuspend(UsbCdcHandle);
   ret = xTaskCreate(UsbHidThread, "UsbHidTask", 512, NULL,
                     (USB_THREAD_PRIORITY), &UsbHidHandle);
   if (ret != pdPASS)
   {
-    printf("Hid thr err\r\n");
+    D_ERR_MSG_L1;
   }
   vTaskSuspend(UsbHidHandle);
 
@@ -81,11 +81,11 @@ void UsbMainThread(__attribute__((unused)) void *arg)
     ret = xTimerStart(UsbTudTimer, 0);
     if (ret == pdFAIL)
     {
-      printf("tud timer err, or sheduler don't start\r\n");
+      D_ERR_MSG_L0;
     }
   } while (ret != pdPASS);
 
-  printf("%s::\tinit end\r\n", __FUNCTION__);
+  D_INIT_INFO;
   while (1)
   {
     Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -109,7 +109,7 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
   UsbCdcQueue = xQueueCreate(USB_CDC_QUEUE_LEN, sizeof(CdcReport_t));
   if (UsbCdcQueue == NULL)
   {
-    printf("cdc queue err\r\n");
+    D_ERR_MSG_L1;
   }
   while (1)
   {
@@ -122,7 +122,7 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
       Event = xEventGroupWaitBits(InterfaceEvents, USB_CDC_EMPTY, pdFALSE, pdTRUE, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS));
       if ((Event & USB_CDC_EMPTY) == 0)
       {
-        printf("cdc tx timeout\r\n");
+        D_TIMEOUT_MSG;
       }
       xEventGroupClearBits(InterfaceEvents, USB_CDC_EMPTY);
       break;
@@ -132,18 +132,18 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
       char TmpCdc[] = "\nreciev::\t";
       if (UsbCdcTransmit((uint8_t *)TmpCdc, sizeof(TmpCdc)))
       {
-        printf("Transmit cdc pref err\r\n");
+        D_ERR_MSG_L1;
       }
       if (UsbCdcTransmit(Buf.Data, Buf.Size))
       {
-        printf("Transmit cdc data err\r\n");
+        D_ERR_MSG_L1;
       }
 
       static HIDReport_t TmpHid = {0};
       BtnTest(&TmpHid.Buttons);
       if (UsbHidTransmit((uint8_t *)&TmpHid, sizeof(TmpHid)))
       {
-        printf("Transmit hid data err\r\n");
+        D_ERR_MSG_L1;
       }
       break;
     }
@@ -175,21 +175,21 @@ void UsbHidThread(__attribute__((unused)) void *arg)
   UsbHidQueue = xQueueCreate(USB_CDC_QUEUE_LEN, sizeof(HIDReport_t));
   if (UsbHidQueue == NULL)
   {
-    printf("hid queue err\r\n");
+    D_ERR_MSG_L1;
   }
   while (1)
   {
     xQueueReceive(UsbHidQueue, (void *)&Report, portMAX_DELAY);
     while (!tud_hid_ready())
     {
-      printf("hid not ready\r\n");
+      D_ERR_MSG_L1;
     }
 
     tud_hid_report(0, &Report, sizeof(Report));
     Event = xEventGroupWaitBits(InterfaceEvents, USB_HID_EMPTY, pdFALSE, pdTRUE, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS));
     if ((Event & USB_HID_EMPTY) == 0)
     {
-      printf("hid tx timeout\r\n");
+      D_TIMEOUT_MSG;
     }
     xEventGroupClearBits(InterfaceEvents, USB_HID_EMPTY);
   }
@@ -253,7 +253,7 @@ void UsbEventsHandler(EventBits_t Events)
       Buf.Size = tud_cdc_n_read(0, Buf.Data, sizeof(Buf.Data));
       if (xQueueSend(UsbCdcQueue, &Buf, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS)) != pdPASS)
       {
-        printf("Cdc RX err\r\n");
+        D_ERR_MSG_L1;
       }
     }
     break;
@@ -261,7 +261,7 @@ void UsbEventsHandler(EventBits_t Events)
     xEventGroupSetBits(InterfaceEvents, USB_CDC_EMPTY);
     break;
   case USB_CDC_BREAK_TX:
-    printf("cdc tx break\r\n");
+    D_ERR_MSG_L1;
     xEventGroupSetBits(InterfaceEvents, USB_CDC_EMPTY);
     break;
   default:
