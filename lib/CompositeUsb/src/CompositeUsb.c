@@ -108,15 +108,13 @@ void UsbMainThread(__attribute__((unused)) void *arg)
 
 void UsbCdcThread(__attribute__((unused)) void *arg)
 {
-
+  EventBits_t Event = 0;
+  CdcReport_t Buf = {0};
   UsbCdcQueue = xQueueCreate(USB_CDC_QUEUE_LEN, sizeof(CdcReport_t));
   if (UsbCdcQueue == NULL)
   {
     printf("cdc queue err\r\n");
   }
-
-  EventBits_t Event = 0;
-  CdcReport_t Buf = {0};
   while (1)
   {
     xQueueReceive(UsbCdcQueue, &Buf, portMAX_DELAY);
@@ -134,8 +132,9 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
       break;
     case CDC_RX:
     {
-      char tmp[] = "reciev::\t";
-      if (UsbCdcTransmit((uint8_t *)tmp, sizeof(tmp)))
+      /* echo mode + hid test */
+      char TmpCdc[] = "\nreciev::\t";
+      if (UsbCdcTransmit((uint8_t *)TmpCdc, sizeof(TmpCdc)))
       {
         printf("Transmit cdc pref err\r\n");
       }
@@ -143,13 +142,13 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
       {
         printf("Transmit cdc data err\r\n");
       }
+
       static HIDReport_t TmpHid = {0};
       BtnTest(&TmpHid.Buttons);
       if (UsbHidTransmit((uint8_t *)&TmpHid, sizeof(TmpHid)))
       {
         printf("Transmit hid data err\r\n");
       }
-
       break;
     }
     default:
@@ -182,7 +181,6 @@ void UsbHidThread(__attribute__((unused)) void *arg)
   {
     printf("hid queue err\r\n");
   }
-
   while (1)
   {
     xQueueReceive(UsbHidQueue, (void *)&Report, portMAX_DELAY);
