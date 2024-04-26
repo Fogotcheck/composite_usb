@@ -23,11 +23,12 @@ void AppMain(void)
 
 void MainThread(__attribute__((unused)) void *arg)
 {
-    printf("Init:\tOK\r\nThr:\tStart\r\n");
+    
     if (CompositeUsbInit())
     {
         Error_Handler();
     }
+    printf("%s::\tinit end\r\n",__FUNCTION__ );
     while (1)
     {
         HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);

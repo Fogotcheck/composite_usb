@@ -21,23 +21,12 @@ void BtnTest(uint32_t *btn);
 int CompositeUsbInit(void)
 {
   BaseType_t ret = 0;
-  HAL_PWREx_EnableVddUSB();
-  __HAL_RCC_USB_CLK_ENABLE();
-  tud_init(BOARD_TUD_RHPORT);
 
   UsbTudTimer = xTimerCreate("tud_timer", pdMS_TO_TICKS(USB_BINTERVAL_MS), pdTRUE, NULL, UsbTudCallback);
   if (UsbTudTimer == NULL)
   {
     return -1;
   }
-  do
-  {
-    ret = xTimerStart(UsbTudTimer, 0);
-    if (ret == pdFAIL)
-    {
-      printf("tud timer err, or sheduler don't start\r\n");
-    }
-  } while (ret != pdPASS);
   ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
                     USB_THREAD_PRIORITY, &UsbMainHandle);
   if (ret != pdPASS)
@@ -82,7 +71,21 @@ void UsbMainThread(__attribute__((unused)) void *arg)
     printf("Hid thr err\r\n");
   }
   vTaskSuspend(UsbHidHandle);
-  printf("Composite usb::\tinit\r\n");
+
+  HAL_PWREx_EnableVddUSB();
+  __HAL_RCC_USB_CLK_ENABLE();
+  tud_init(BOARD_TUD_RHPORT);
+
+  do
+  {
+    ret = xTimerStart(UsbTudTimer, 0);
+    if (ret == pdFAIL)
+    {
+      printf("tud timer err, or sheduler don't start\r\n");
+    }
+  } while (ret != pdPASS);
+
+  printf("%s::\tinit end\r\n",__FUNCTION__ );
   while (1)
   {
     Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
