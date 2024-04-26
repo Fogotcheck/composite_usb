@@ -85,7 +85,7 @@ void UsbMainThread(__attribute__((unused)) void *arg)
     }
   } while (ret != pdPASS);
 
-  printf("%s::\tinit end\r\n",__FUNCTION__ );
+  printf("%s::\tinit end\r\n", __FUNCTION__);
   while (1)
   {
     Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -251,7 +251,7 @@ void UsbEventsHandler(EventBits_t Events)
     if (tud_cdc_n_available(0))
     {
       Buf.Size = tud_cdc_n_read(0, Buf.Data, sizeof(Buf.Data));
-      if (xQueueSend(UsbCdcQueue, &Buf, 5) != pdPASS)
+      if (xQueueSend(UsbCdcQueue, &Buf, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS)) != pdPASS)
       {
         printf("Cdc RX err\r\n");
       }
