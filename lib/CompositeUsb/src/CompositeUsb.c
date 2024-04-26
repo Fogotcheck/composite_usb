@@ -13,8 +13,6 @@ QueueHandle_t UsbHidQueue = NULL;
 void UsbMainThread(void *arg);
 void UsbCdcThread(void *arg);
 void UsbHidThread(void *arg);
-void USB_HP_IRQHandler(void);
-void USB_LP_IRQHandler(void);
 void UsbTudCallback(TimerHandle_t xTimer);
 void UsbEventsHandler(EventBits_t Events);
 
@@ -37,7 +35,7 @@ int CompositeUsbInit(void)
     ret = xTimerStart(UsbTudTimer, 0);
     if (ret == pdFAIL)
     {
-      printf("tud timer err,or sheduler don't start\r\n");
+      printf("tud timer err, or sheduler don't start\r\n");
     }
   } while (ret != pdPASS);
   ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
@@ -57,11 +55,6 @@ void UsbMainThread(__attribute__((unused)) void *arg)
   EventBits_t Mask = 1;
 
   UsbISREvents = xEventGroupCreate();
-  if (UsbISREvents == NULL)
-  {
-    printf("Usb ISR events::err\r\n");
-  }
-
   InterfaceEvents = xEventGroupCreate();
   if (InterfaceEvents == NULL)
   {
