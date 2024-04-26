@@ -6,6 +6,7 @@ option(ENVIRONMENT_VSCODE "Custom target make json for vsCode" OFF)
 project(composite_usb VERSION 0.1.0 LANGUAGES C ASM)
 
 set(MCU_DEVICE "STM32WB55xx")
+set(USB_OPTS "CFG_TUSB_MCU=OPT_MCU_STM32WB")
 add_compile_definitions(
     ${MCU_DEVICE}
     "USE_HAL_DRIVER"

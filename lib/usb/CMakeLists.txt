@@ -7,7 +7,7 @@ set(TinyUsbPath "${CMAKE_CURRENT_SOURCE_DIR}/TinyUsb")
 target_compile_definitions(
     tinyusb_config
     INTERFACE
-    "CFG_TUSB_MCU=OPT_MCU_STM32WB"
+    ${USB_OPTS}
     # "CFG_TUSB_DEBUG=3"
     # "CFG_TUSB_OS=OPT_OS_FREERTOS" don't work
 )
