@@ -1,6 +1,6 @@
 #include "usb_ISR.h"
 
-extern EventGroupHandle_t UsbEvents;
+extern EventGroupHandle_t UsbISREvents;
 //--------------------------------------------------------------------+
 // Forward USB interrupt events to TinyUSB IRQ Handler
 //--------------------------------------------------------------------+
@@ -17,24 +17,24 @@ void USB_LP_IRQHandler(void)
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_MOUNT, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_MOUNT, &pxHigherPriorityTaskWoken);
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_UMOUNT, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_UMOUNT, &pxHigherPriorityTaskWoken);
 }
 
 // Invoked when usb bus is suspended
@@ -42,24 +42,24 @@ void tud_umount_cb(void)
 // Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     (void)remote_wakeup_en;
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_SUSPEND, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_SUSPEND, &pxHigherPriorityTaskWoken);
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_RESUME, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_RESUME, &pxHigherPriorityTaskWoken);
 }
 
 // Invoked when sent REPORT successfully to host
@@ -67,14 +67,14 @@ void tud_resume_cb(void)
 // Note: For composite reports, report[0] is report ID
 void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint16_t len)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     (void)instance;
     (void)len;
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_HID_CPLT_TX, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_HID_CPLT_TX, &pxHigherPriorityTaskWoken);
 }
 
 // Invoked when received GET_REPORT control request
@@ -101,30 +101,30 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 // Invoked when received new data
 void tud_cdc_rx_cb(uint8_t itf)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_CDC_RX, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_CDC_RX, &pxHigherPriorityTaskWoken);
 }
 // Invoked when a TX is complete and therefore space becomes available in TX buffer
 void tud_cdc_tx_complete_cb(uint8_t itf)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_CDC_CPLT_TX, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_CDC_CPLT_TX, &pxHigherPriorityTaskWoken);
 }
 // Invoked when received send break
 void tud_cdc_send_break_cb(uint8_t itf, uint16_t duration_ms)
 {
-    if (UsbEvents==NULL)
+    if (UsbISREvents==NULL)
     {
         return;
     }
     BaseType_t pxHigherPriorityTaskWoken = pdFALSE;
-    xEventGroupSetBitsFromISR(UsbEvents, USB_CDC_BREAK_TX, &pxHigherPriorityTaskWoken);
+    xEventGroupSetBitsFromISR(UsbISREvents, USB_CDC_BREAK_TX, &pxHigherPriorityTaskWoken);
 }
