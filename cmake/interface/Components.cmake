@@ -4,15 +4,30 @@ add_library(${PROJECT_NAME}_libs INTERFACE)
 
 function(Add_Warnings COMPONENT)
     target_compile_options(${COMPONENT} PRIVATE
+        -Wall
         -Wextra
-        -pipe
-        -Wshadow
-        -Wpointer-arith
-        -Wbad-function-cast
-        -Waggregate-return
+        -Werror
+        -Wfatal-errors
+        -Wdouble-promotion
         -Wstrict-prototypes
-        -Wmissing-prototypes
+        -Wstrict-overflow
+        -Werror-implicit-function-declaration
+        -Wfloat-equal
+        -Wundef
+        -Wshadow
+        -Wwrite-strings
+        -Wsign-compare
+        -Wmissing-format-attribute
+        -Wunreachable-code
+        -Wcast-align
+        -Wcast-function-type
+        -Wcast-qual
+        -Wnull-dereference
+        -Wuninitialized
         -Wunused
+        -Wunused-function
+        -Wreturn-type
+        -Wredundant-decls
     )
 endfunction(Add_Warnings COMPONENT)
 
