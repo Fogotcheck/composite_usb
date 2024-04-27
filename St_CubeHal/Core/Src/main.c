@@ -55,6 +55,7 @@ void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USB_PCD_Init(void);
+static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,6 +99,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_USB_PCD_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   AppMain();
   /* USER CODE END 2 */
@@ -200,6 +204,20 @@ void PeriphCommonClock_Config(void)
   /* USER CODE BEGIN Smps */
 
   /* USER CODE END Smps */
+}
+
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* USB_LP_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USB_LP_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(USB_LP_IRQn);
+  /* USB_HP_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USB_HP_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(USB_HP_IRQn);
 }
 
 /**

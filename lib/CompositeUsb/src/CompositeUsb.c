@@ -13,7 +13,6 @@ QueueHandle_t UsbHidQueue = NULL;
 void UsbMainThread(void *arg);
 void UsbCdcThread(void *arg);
 void UsbHidThread(void *arg);
-void UsbTudCallback(TimerHandle_t xTimer);
 void UsbEventsHandler(EventBits_t Events);
 
 void BtnTest(uint32_t *btn);
@@ -21,14 +20,8 @@ void BtnTest(uint32_t *btn);
 int CompositeUsbInit(void)
 {
   BaseType_t ret = 0;
-
-  UsbTudTimer = xTimerCreate("tud_timer", pdMS_TO_TICKS(USB_BINTERVAL_MS), pdTRUE, NULL, UsbTudCallback);
-  if (UsbTudTimer == NULL)
-  {
-    return -1;
-  }
   ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
-                    USB_THREAD_PRIORITY, &UsbMainHandle);
+                    (configMAX_PRIORITIES-1), &UsbMainHandle);
   if (ret != pdPASS)
   {
     return -1;
@@ -76,29 +69,24 @@ void UsbMainThread(__attribute__((unused)) void *arg)
   __HAL_RCC_USB_CLK_ENABLE();
   tud_init(BOARD_TUD_RHPORT);
 
-  do
-  {
-    ret = xTimerStart(UsbTudTimer, 0);
-    if (ret == pdFAIL)
-    {
-      D_ERR_MSG_L0;
-    }
-  } while (ret != pdPASS);
-
   D_INIT_INFO;
   while (1)
   {
-    Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, portMAX_DELAY);
-    for (uint8_t i = 0; i < FREERTOS_MAX_EVENT_SIZE; i++)
+    Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, pdMS_TO_TICKS(USB_BINTERVAL_MS));
+    if (Event)
     {
-      if (Mask & Event)
+      for (uint8_t i = 0; i < FREERTOS_MAX_EVENT_SIZE; i++)
       {
-        UsbEventsHandler(Mask & Event);
-      }
+        if (Mask & Event)
+        {
+          UsbEventsHandler(Mask & Event);
+        }
 
-      Mask <<= 1;
+        Mask <<= 1;
+      }
     }
     Mask = 1;
+    tud_task(); // device task
   }
 }
 
@@ -206,14 +194,6 @@ int UsbHidTransmit(uint8_t *Data, uint32_t Len)
   memcpy(&Report, Data, Len);
   ret = xQueueSend(UsbHidQueue, &Report, pdMS_TO_TICKS(USB_WAIT_EVENT_TIME_MS));
   return ret == pdTRUE ? 0 : -1;
-}
-
-void UsbTudCallback(TimerHandle_t xTimer)
-{
-  if (xTimer == UsbTudTimer)
-  {
-    tud_task(); // device task
-  }
 }
 
 void UsbEventsHandler(EventBits_t Events)

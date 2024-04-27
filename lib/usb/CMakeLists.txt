@@ -9,7 +9,7 @@ target_compile_definitions(
     INTERFACE
     ${USB_OPTS}
     # "CFG_TUSB_DEBUG=3"
-    # "CFG_TUSB_OS=OPT_OS_FREERTOS" don't work
+    "CFG_TUSB_OS=OPT_OS_FREERTOS"
 )
 
 target_include_directories(
@@ -25,7 +25,7 @@ target_link_libraries(
     tinyusb_config
     INTERFACE
     St_Interface
-    FreeRtos 
+    FreeRtos
 )
 
 add_subdirectory(
