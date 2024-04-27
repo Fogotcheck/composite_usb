@@ -12,6 +12,7 @@ add_compile_definitions(
     "USE_HAL_DRIVER"
     "__NEWLIB__"
     "USE_RTOS"
+    # "configRECORD_STACK_HIGH_ADDRESS=1" # stack trace
 )
 add_link_options(
     "-T${CMAKE_SOURCE_DIR}/St_CubeHal/STM32WB55RGVX_FLASH.ld"

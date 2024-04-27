@@ -74,6 +74,9 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TICKLESS_IDLE 1
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP 5
 
+/* Trase mode */
+// #define configRECORD_STACK_HIGH_ADDRESS 1
+
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 0
 #define configMAX_CO_ROUTINE_PRIORITIES (2)
