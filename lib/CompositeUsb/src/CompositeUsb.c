@@ -21,7 +21,7 @@ int CompositeUsbInit(void)
 {
   BaseType_t ret = 0;
   ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
-                    (configMAX_PRIORITIES-1), &UsbMainHandle);
+                    (configMAX_PRIORITIES - 1), &UsbMainHandle);
   if (ret != pdPASS)
   {
     return -1;
@@ -67,11 +67,17 @@ void UsbMainThread(__attribute__((unused)) void *arg)
 
   HAL_PWREx_EnableVddUSB();
   __HAL_RCC_USB_CLK_ENABLE();
+
+  // init device stack on configured roothub port
+  // This should be called after scheduler/kernel is started.
+  // Otherwise it could cause kernel issue since USB IRQ handler does use RTOS queue API.
   tud_init(BOARD_TUD_RHPORT);
 
   D_INIT_INFO;
   while (1)
   {
+    // put this thread to waiting state until there is new events
+    tud_task(); // device task
     Event = xEventGroupWaitBits(UsbISREvents, USB_ALL_ISR_EVENTS, pdFALSE, pdFALSE, pdMS_TO_TICKS(USB_BINTERVAL_MS));
     if (Event)
     {
@@ -86,7 +92,6 @@ void UsbMainThread(__attribute__((unused)) void *arg)
       }
     }
     Mask = 1;
-    tud_task(); // device task
   }
 }
 
