@@ -2,7 +2,6 @@
 #include "tusb.h"
 
 TaskHandle_t UsbMainHandle = NULL;
-TimerHandle_t UsbTudTimer = NULL;
 EventGroupHandle_t UsbISREvents = NULL;
 EventGroupHandle_t InterfaceEvents = NULL;
 TaskHandle_t UsbCdcHandle = NULL;
