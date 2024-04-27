@@ -20,7 +20,7 @@ void BtnTest(uint32_t *btn);
 int CompositeUsbInit(void)
 {
   BaseType_t ret = 0;
-  ret = xTaskCreate(UsbMainThread, "UsbMainTask", 512, NULL,
+  ret = xTaskCreate(UsbMainThread, "UsbMainTask", USB_MAIN_THR_STACK, NULL,
                     (configMAX_PRIORITIES - 1), &UsbMainHandle);
   if (ret != pdPASS)
   {
@@ -50,14 +50,14 @@ void UsbMainThread(__attribute__((unused)) void *arg)
       D_ERR_MSG_L0;
     } while (1);
   }
-  ret = xTaskCreate(UsbCdcThread, "UsbCdcTask", 512, NULL,
+  ret = xTaskCreate(UsbCdcThread, "UsbCdcTask", USB_CDC_THR_STACK, NULL,
                     (USB_THREAD_PRIORITY), &UsbCdcHandle);
   if (ret != pdPASS)
   {
     D_ERR_MSG_L1;
   }
   vTaskSuspend(UsbCdcHandle);
-  ret = xTaskCreate(UsbHidThread, "UsbHidTask", 512, NULL,
+  ret = xTaskCreate(UsbHidThread, "UsbHidTask", USB_HID_THR_STACK, NULL,
                     (USB_THREAD_PRIORITY), &UsbHidHandle);
   if (ret != pdPASS)
   {
