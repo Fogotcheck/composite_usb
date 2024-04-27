@@ -17,7 +17,7 @@
 #include "Debug_MSG.h"
 
 #define USB_CDC_QUEUE_LEN 6
-#define USB_BINTERVAL_MS 5
+#define USB_BINTERVAL_MS 5 // when use OPT_OS_FREERTOS may be any
 #define USB_WAIT_EVENT_TIME_MS 10
 #define USB_THREAD_PRIORITY 4
 
