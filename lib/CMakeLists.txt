@@ -5,6 +5,7 @@ add_subdirectory(rtos)
 add_subdirectory(Debug)
 add_subdirectory(usb)
 add_subdirectory(CompositeUsb)
+add_subdirectory(Protocol)
 
 target_link_libraries(
     ${PROJECT_NAME}
