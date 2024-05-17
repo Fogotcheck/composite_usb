@@ -8,12 +8,8 @@ void SetCompileTime(char *t, char *d);
 
 int VRGetData(uint32_t *addr, uint32_t *data)
 {
-    if (VREG_GOOD_ADDR(*addr))
+    if (!VREG_GOOD_ADDR(*addr))
     {
-#if defined(VRS_ERRORS_COUNT)
-        VAL(VRS_ERRORS_COUNT)
-        ++;
-#endif
         return -1;
     }
     *data = VAL(*addr);
@@ -23,12 +19,8 @@ int VRGetData(uint32_t *addr, uint32_t *data)
 
 int VRSetData(uint32_t *addr, uint32_t *data)
 {
-    if (VREG_GOOD_ADDR(*addr))
+    if (!VREG_GOOD_ADDR(*addr))
     {
-#if defined(VRS_ERRORS_COUNT)
-        VAL(VRS_ERRORS_COUNT)
-        ++;
-#endif
         return -1;
     }
     VAL(*addr) = *data;

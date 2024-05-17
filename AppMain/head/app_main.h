@@ -3,6 +3,7 @@
 #include "main.h"
 #include "Debug_Print.h"
 #include "CompositeUsb.h"
+#include "BProt.h"
 
 void AppMain(void);
 #endif

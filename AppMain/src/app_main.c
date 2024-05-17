@@ -4,7 +4,7 @@
 #include "task.h"
 void MainThread(void *arg);
 #endif
-
+uint32_t Data[32] = {0};
 void AppMain(void)
 {
     DebugPrintSwitch(DEBUG_PRINT_ENABLE);
@@ -29,6 +29,13 @@ void MainThread(__attribute__((unused)) void *arg)
         D_ERR_MSG_L0;
         Error_Handler();
     }
+     vTaskDelay(100);
+    if (BProtInit((void *)Data, sizeof(Data)))
+    {
+        D_ERR_MSG_L0;
+    }
+
+    vTaskDelay(1000);
     D_INIT_INFO;
     while (1)
     {

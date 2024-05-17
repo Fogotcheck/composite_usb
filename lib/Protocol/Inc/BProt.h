@@ -25,4 +25,6 @@ extern QueueHandle_t BPQueue;
 
 int BProtInit(void *PtrRegMap, uint16_t MapSize);
 void BProtMsgHandler(BPBuf_t *Buf);
+void BPTransmitCallBack(uint8_t *data, uint16_t size);
+void BPErrHandler(void);
 #endif //__BProt_h__

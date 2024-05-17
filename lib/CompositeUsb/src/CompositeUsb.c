@@ -1,5 +1,6 @@
 #include "CompositeUsb.h"
 #include "tusb.h"
+#include "BPCDCport.h"
 
 TaskHandle_t UsbMainHandle = NULL;
 EventGroupHandle_t UsbISREvents = NULL;
@@ -121,15 +122,7 @@ void UsbCdcThread(__attribute__((unused)) void *arg)
     case CDC_RX:
     {
       /* echo mode + hid test */
-      char TmpCdc[] = "\nreciev::\t";
-      if (UsbCdcTransmit((uint8_t *)TmpCdc, sizeof(TmpCdc)))
-      {
-        D_ERR_MSG_L1;
-      }
-      if (UsbCdcTransmit(Buf.Data, Buf.Size))
-      {
-        D_ERR_MSG_L1;
-      }
+      CdcRecievCallBack(Buf.Data, Buf.Size);
 
       static HIDReport_t TmpHid = {0};
       BtnTest(&TmpHid.Buttons);
@@ -284,3 +277,4 @@ void BtnTest(uint32_t *btn)
     break;
   }
 }
+
