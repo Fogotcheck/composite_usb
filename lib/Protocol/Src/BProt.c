@@ -1,9 +1,10 @@
 #include "BProtConf.h"
 #include "BProt.h"
 
-#if defined(USE_RTOS)
+#if defined(USE_FreeRTOS)
 TaskHandle_t BPHandle = NULL;
 QueueHandle_t BPQueue = NULL;
+SemaphoreHandle_t BPMutex = NULL;
 #endif
 
 void BProtThread(void *arg);
@@ -14,6 +15,10 @@ int BPCheckData(BPFrame_t *frame);
 void BPDataHandler(BPFrame_t *frame);
 void BPGenMsg(BPmsgTypeConf_t *MsgConf, BPFrame_t *frame);
 uint16_t BPCalkLen(BPFrame_t *frame);
+void BPRanRead(BPFrame_t *frame);
+void BPRanWrite(BPFrame_t *frame);
+void BPBlockRead(BPFrame_t *frame);
+void BPBlockWrite(BPFrame_t *frame);
 
 int BProtInit(void *PtrRegMap, uint16_t MapSize)
 {
@@ -22,18 +27,16 @@ int BProtInit(void *PtrRegMap, uint16_t MapSize)
         return -1;
     }
     int ret = 0;
-#if defined(USE_RTOS)
+#if defined(USE_FreeRTOS)
     ret = xTaskCreate(BProtThread, "BProtThread",
                       BPROT_THR_STACK, NULL,
                       BPROT_THR_PRIORITY, &BPHandle);
     ret = ret == pdPASS ? 0 : -1;
-
 #endif
-
     return ret;
 }
 
-#if defined(USE_RTOS)
+#if defined(USE_FreeRTOS)
 void BProtThread(__attribute__((unused)) void *arg)
 {
     BPBuf_t Buf;
@@ -42,7 +45,11 @@ void BProtThread(__attribute__((unused)) void *arg)
     {
         vTaskDelete(NULL);
     }
-
+    BPMutex = xSemaphoreCreateMutex();
+    if (BPMutex == NULL)
+    {
+        vTaskDelete(NULL);
+    }
     while (1)
     {
         xQueueReceive(BPQueue, &Buf, portMAX_DELAY);
@@ -139,41 +146,29 @@ int BPCheckData(BPFrame_t *frame)
 
 void BPDataHandler(BPFrame_t *frame)
 {
+
+    BPLockMem();
     switch (frame->head->type)
     {
     case RANDOM_WRITE_COMM:
-        for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
-        {
-            if (VRSetData(&frame->data[addr], &frame->data[reg]))
-            {
-                BPErrHandler();
-            }
-        }
-
+        BPRanRead(frame);
         break;
     case RANDOM_WRITE_ANSW:
         /* code */
         break;
     case RANDOM_READ_COMM:
-        for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
-        {
-            if (VRGetData(&frame->data[addr], &frame->data[reg]))
-            {
-                BPErrHandler();
-            }
-        }
+        BPRanWrite(frame);
         break;
     case RANDOM_READ_ANSW:
-        /* code */
         break;
     case BLOCK_WRITE_COMM:
-        /* code */
+        BPBlockWrite(frame);
         break;
     case BLOCK_WRITE_ANSW:
         /* code */
         break;
     case BLOCK_READ_COMM:
-        /* code */
+        BPBlockRead(frame);
         break;
     case BLOCK_READ_ANSW:
         /* code */
@@ -182,6 +177,7 @@ void BPDataHandler(BPFrame_t *frame)
         BPErrHandler();
         break;
     }
+    BPUnLockMem();
 }
 
 void BPGenMsg(BPmsgTypeConf_t *MsgConf, BPFrame_t *frame)
@@ -234,7 +230,7 @@ uint16_t BPCalkLen(BPFrame_t *frame)
         /* code */
         break;
     case BLOCK_READ_COMM:
-        /* code */
+        len = frame->head->len + (frame->data[1] * sizeof(uint32_t));
         break;
     case BLOCK_READ_ANSW:
         /* code */
@@ -243,4 +239,71 @@ uint16_t BPCalkLen(BPFrame_t *frame)
         break;
     }
     return len;
+}
+
+void BPRanRead(BPFrame_t *frame)
+{
+    for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
+    {
+        if (VRSetData(&frame->data[addr], &frame->data[reg]))
+        {
+            BPErrHandler();
+        }
+    }
+}
+
+void BPRanWrite(BPFrame_t *frame)
+{
+    for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
+    {
+        if (VRGetData(&frame->data[addr], &frame->data[reg]))
+        {
+            BPErrHandler();
+        }
+    }
+}
+
+void BPBlockRead(BPFrame_t *frame)
+{
+    uint32_t StartAddr = frame->data[0];
+    uint32_t CountRegs = frame->data[1];
+    uint32_t *data = &frame->data[2];
+    for (uint16_t i = 0; i < CountRegs; i++)
+    {
+        if (VRGetData(&StartAddr, data))
+        {
+            BPErrHandler();
+        }
+        StartAddr += sizeof(uint32_t);
+        data++;
+    }
+}
+
+void BPBlockWrite(BPFrame_t *frame)
+{
+    uint32_t StartAddr = frame->data[0];
+    uint32_t CountRegs = frame->data[1];
+    uint32_t *data = &frame->data[2];
+    for (uint16_t i = 0; i < CountRegs; i++)
+    {
+        if (VRSetData(&StartAddr, data))
+        {
+            BPErrHandler();
+        }
+        StartAddr += sizeof(uint32_t);
+        data++;
+    }
+}
+
+void BPLockMem(void)
+{
+#if defined(USE_FreeRTOS)
+    xSemaphoreTake(BPMutex, portMAX_DELAY);
+#endif
+}
+void BPUnLockMem(void)
+{
+#if defined(USE_FreeRTOS)
+    xSemaphoreGive(BPMutex);
+#endif
 }

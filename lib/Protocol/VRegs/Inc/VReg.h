@@ -15,7 +15,7 @@ typedef struct VRegData
 
 extern VRegData_t VRMap;
 
-#define VREG_GOOD_ALIGN(x) (!((x) & (3)))
+#define VREG_GOOD_ALIGN(x) (!((x) % (sizeof(uint32_t))))
 #define VREG_GOOD_RANGE(x) ((x) < (VRMap.size) ? 1 : 0)
 
 #define VREG_GOOD_ADDR(x) (VREG_GOOD_RANGE(x) && VREG_GOOD_ALIGN(x))
@@ -28,4 +28,5 @@ extern VRegData_t VRMap;
 int VRMapInit(void *PtrRegMap, uint16_t MapSize);
 int VRSetData(uint32_t *addr, uint32_t *data);
 int VRGetData(uint32_t *addr, uint32_t *data);
+
 #endif //__VReg_h__

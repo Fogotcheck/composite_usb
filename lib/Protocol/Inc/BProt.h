@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#if defined(USE_RTOS)
+#if defined(USE_FreeRTOS)
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -27,4 +27,6 @@ int BProtInit(void *PtrRegMap, uint16_t MapSize);
 void BProtMsgHandler(BPBuf_t *Buf);
 void BPTransmitCallBack(uint8_t *data, uint16_t size);
 void BPErrHandler(void);
+void BPLockMem(void);
+void BPUnLockMem(void);
 #endif //__BProt_h__

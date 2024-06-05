@@ -11,7 +11,7 @@ add_compile_definitions(
     ${MCU_DEVICE}
     "USE_HAL_DRIVER"
     "__NEWLIB__"
-    "USE_RTOS"
+    "USE_FreeRTOS"
     # "configRECORD_STACK_HIGH_ADDRESS=1" # stack trace
 )
 add_link_options(
