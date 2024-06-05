@@ -36,6 +36,7 @@ void MainThread(__attribute__((unused)) void *arg)
     }
 
     vTaskDelay(1000);
+    Test();
     D_INIT_INFO;
     while (1)
     {

@@ -6,6 +6,7 @@ add_subdirectory(Debug)
 add_subdirectory(usb)
 add_subdirectory(CompositeUsb)
 add_subdirectory(Protocol)
+add_subdirectory(FlashMemConfig)
 
 target_link_libraries(
     ${PROJECT_NAME}

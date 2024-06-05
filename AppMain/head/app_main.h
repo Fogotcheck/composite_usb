@@ -4,6 +4,7 @@
 #include "Debug_Print.h"
 #include "CompositeUsb.h"
 #include "BProt.h"
+#include "FMConf.h"
 
 void AppMain(void);
 #endif
