@@ -8,6 +8,8 @@ add_subdirectory(CompositeUsb)
 add_subdirectory(Protocol)
 add_subdirectory(FlashMemConfig)
 
+add_subdirectory(ProtocolsHandlers)
+
 target_link_libraries(
     ${PROJECT_NAME}
     ${PROJECT_NAME}_libs

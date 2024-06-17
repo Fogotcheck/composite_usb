@@ -252,10 +252,7 @@ void BPRanRead(BPFrame_t *frame)
 {
     for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
     {
-        if (VRSetData(&frame->data[addr], &frame->data[reg]))
-        {
-            BPErrHandler();
-        }
+
 #if (BP_CONF_HANDLERS_EN == 1)
         if (BPSetHandleStart(&frame->data[addr], &frame->data[reg]))
         {
@@ -263,6 +260,10 @@ void BPRanRead(BPFrame_t *frame)
             continue;
         }
 #endif
+        if (VRSetData(&frame->data[addr], &frame->data[reg]))
+        {
+            BPErrHandler();
+        }
     }
 }
 
@@ -270,17 +271,18 @@ void BPRanWrite(BPFrame_t *frame)
 {
     for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
     {
-#if (BP_CONF_HANDLERS_EN == 1)
-        if (BPGetHandleStart(&frame->data[addr], &frame->data[reg]))
+
+        if (VRGetData(&frame->data[addr], &frame->data[reg]))
         {
             BPErrHandler();
             continue;
         }
-#endif
-        if (VRGetData(&frame->data[addr], &frame->data[reg]))
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPGetHandleStart(&frame->data[addr], &frame->data[reg]))
         {
             BPErrHandler();
         }
+#endif
     }
 }
 
@@ -293,18 +295,17 @@ void BPBlockRead(BPFrame_t *frame)
     {
         if (VRGetData(&StartAddr, data))
         {
-            BPErrHandler();
-        }
-#if (BP_CONF_HANDLERS_EN == 1)
-        if (BPGetHandleStart(&StartAddr, data))
-        {
             StartAddr += sizeof(uint32_t);
             data++;
             BPErrHandler();
             continue;
         }
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPGetHandleStart(&StartAddr, data))
+        {
+            BPErrHandler();
+        }
 #endif
-
         StartAddr += sizeof(uint32_t);
         data++;
     }

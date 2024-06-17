@@ -5,6 +5,7 @@
 #include "CompositeUsb.h"
 #include "BProt.h"
 #include "FMConf.h"
+#include "BPHandlers.h"
 
 void AppMain(void);
 #endif
