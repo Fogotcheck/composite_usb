@@ -22,7 +22,7 @@ extern VRegData_t VRMap;
 
 #define VAL(addr) (*(uint32_t *)(VRMap.mem + (uint32_t)(addr)))
 
-#define VR_OFSETT_SHIFT_BIT (VIRT_REG_USER_WORD_SIZE >> 1)
+#define VR_OFSETT_SHIFT_BIT (sizeof(uint32_t) >> 1)
 #define COUNT(addr) (addr >> VR_OFSETT_SHIFT_BIT)
 
 int VRMapInit(void *PtrRegMap, uint16_t MapSize);

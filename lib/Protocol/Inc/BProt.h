@@ -20,6 +20,7 @@
 #include "BProtDef.h"
 #include "VReg.h"
 #include "crc.h"
+#include "HandlersCore.h"
 
 extern QueueHandle_t BPQueue;
 

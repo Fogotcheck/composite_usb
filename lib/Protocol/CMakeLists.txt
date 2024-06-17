@@ -19,14 +19,21 @@ target_include_directories(
     "${${ModuleName}PubHead}"
     "${${ModuleName}PrivHead}"
 )
+
+target_link_libraries(
+    BPInterface
+    INTERFACE
+    FreeRtos
+)
+
 add_subdirectory(Crc)
 add_subdirectory(VRegs)
 add_subdirectory(CdcPort)
+add_subdirectory(HandlersCore)
 add_library(${ModuleName} ${${ModuleName}Src})
 
 target_link_libraries(${ModuleName}
     BPInterface
-    FreeRtos
     Debug_Print
 )
 

@@ -26,6 +26,13 @@ int BProtInit(void *PtrRegMap, uint16_t MapSize)
     {
         return -1;
     }
+#if (BP_CONF_HANDLERS_EN == 1)
+    if (HandlersCoreInit(MapSize))
+    {
+        return -1;
+    }
+#endif
+
     int ret = 0;
 #if defined(USE_FreeRTOS)
     ret = xTaskCreate(BProtThread, "BProtThread",
@@ -249,6 +256,13 @@ void BPRanRead(BPFrame_t *frame)
         {
             BPErrHandler();
         }
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPSetHandleStart(&frame->data[addr], &frame->data[reg]))
+        {
+            BPErrHandler();
+            continue;
+        }
+#endif
     }
 }
 
@@ -256,6 +270,13 @@ void BPRanWrite(BPFrame_t *frame)
 {
     for (uint16_t addr = 0, reg = 1; addr < (frame->head->len / sizeof(uint32_t)); addr += 2, reg += 2)
     {
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPGetHandleStart(&frame->data[addr], &frame->data[reg]))
+        {
+            BPErrHandler();
+            continue;
+        }
+#endif
         if (VRGetData(&frame->data[addr], &frame->data[reg]))
         {
             BPErrHandler();
@@ -274,6 +295,16 @@ void BPBlockRead(BPFrame_t *frame)
         {
             BPErrHandler();
         }
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPGetHandleStart(&StartAddr, data))
+        {
+            StartAddr += sizeof(uint32_t);
+            data++;
+            BPErrHandler();
+            continue;
+        }
+#endif
+
         StartAddr += sizeof(uint32_t);
         data++;
     }
@@ -286,10 +317,21 @@ void BPBlockWrite(BPFrame_t *frame)
     uint32_t *data = &frame->data[2];
     for (uint16_t i = 0; i < CountRegs; i++)
     {
+
+#if (BP_CONF_HANDLERS_EN == 1)
+        if (BPSetHandleStart(&StartAddr, data))
+        {
+            StartAddr += sizeof(uint32_t);
+            data++;
+            BPErrHandler();
+            continue;
+        }
+#endif
         if (VRSetData(&StartAddr, data))
         {
             BPErrHandler();
         }
+
         StartAddr += sizeof(uint32_t);
         data++;
     }
