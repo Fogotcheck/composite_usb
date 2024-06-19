@@ -2,15 +2,12 @@
 #define __HandlersCore_h__
 
 #include "string.h"
-#if defined(USE_FreeRTOS)
-#include "FreeRTOS.h"
-#define HandlersMalloc(MemSize) pvPortMalloc(MemSize)
-#else
+
 #include "stdlib.h"
 #define HandlersMalloc(MemSize) malloc(MemSize)
-#endif
 
 #include "VReg.h"
+#include "BProtConf.h"
 
 typedef int(Handlers_t)(uint32_t *);
 typedef void(ErrHandlers_t)(uint32_t *);

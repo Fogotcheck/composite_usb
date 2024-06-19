@@ -4,7 +4,7 @@ HandlersCore_t BPHandlers;
 
 int HandlersCoreInit(uint16_t MapSize)
 {
-    uint16_t MemSize = MapSize / sizeof(uint32_t) * sizeof(BPHandlersType_t);
+    uint16_t MemSize = (MapSize / sizeof(uint32_t)) * sizeof(BPHandlersType_t);
     BPHandlers.Handlers = (BPHandlersType_t *)HandlersMalloc(MemSize);
     if (BPHandlers.Handlers == NULL)
     {
@@ -24,7 +24,7 @@ int BPSetHandler(uint32_t addr, BPHandlersType_t *Handle)
     }
 #if (BP_CONF_HANDLERS_EN == 1)
     BPHandlers.Handlers[COUNT(addr)] = *Handle;
-#endif
+#endif 
     return 0;
 }
 
@@ -38,6 +38,7 @@ int BPGetHandleStart(uint32_t *addr, uint32_t *data)
     {
         return 0;
     }
+    uint8_t tmp= COUNT(*addr);
     if (BPHandlers.Handlers[COUNT(*addr)].Get(data))
     {
         if (BPHandlers.Handlers[COUNT(*addr)].Err != NULL)
@@ -55,6 +56,7 @@ int BPSetHandleStart(uint32_t *addr, uint32_t *data)
     {
         return -1;
     }
+    uint8_t tmp= COUNT(*addr);
     if (BPHandlers.Handlers[COUNT(*addr)].Set == NULL)
     {
         return 0;
